@@ -119,8 +119,8 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
               return (
                 <div key={index} className="selected-tile" onClick={() => removeTile(index)}>
                   <span className="tile-display">
-                    <span className="selected-icon">{display.icon}</span>
-                    <span className="selected-label">{display.label}</span>
+                    <span className="selected-icon">{display?.icon || '🀫'}</span>
+                    <span className="selected-label">{display?.label || `${tile.type} ${tile.value}`}</span>
                   </span>
                   <span className="remove-icon">×</span>
                 </div>
