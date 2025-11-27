@@ -97,7 +97,8 @@ function App() {
       seatWind: 'east',
       roundWind: 'east',
       seatNumber: 1,
-      isDealer: false
+      isDealer: false,
+      fullyConcealedHand: true
     };
     
     if (pendingHandData) {

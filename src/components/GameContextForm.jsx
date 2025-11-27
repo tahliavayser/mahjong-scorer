@@ -7,7 +7,8 @@ const GameContextForm = ({ onSubmit, onSkip }) => {
     seatWind: 'east',
     roundWind: 'east',
     seatNumber: 1,
-    isDealer: false
+    isDealer: false,
+    fullyConcealedHand: true
   });
 
   const handleChange = (field, value) => {
@@ -102,6 +103,20 @@ const GameContextForm = ({ onSubmit, onSkip }) => {
                   <strong>Moon Under The Sea (海底撈月)</strong>
                   <span>Won on the last tile from the wall</span>
                 </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Hand Status</h3>
+            <div className="form-row">
+              <label className="checkbox-option">
+                <input
+                  type="checkbox"
+                  checked={context.fullyConcealedHand}
+                  onChange={(e) => handleChange('fullyConcealedHand', e.target.checked)}
+                />
+                <span>Fully concealed hand (did not call Pong/Chow/Kong from discards)</span>
               </label>
             </div>
           </div>

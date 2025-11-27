@@ -168,8 +168,8 @@ const checkWinActions = (handData, gameContext) => {
     patterns.push({ ...SCORING_PATTERNS.WIN_ACTIONS.DOUBLE_KONG_REPLACEMENT });
   }
   
-  // Concealed Hand
-  if (handData.allConcealed && gameContext.winType !== 'selfPick') {
+  // Concealed Hand - only if fully concealed (no Pong/Chow/Kong from discards) and won from discard
+  if (gameContext.fullyConcealedHand && gameContext.winType === 'discard') {
     patterns.push({ ...SCORING_PATTERNS.WIN_ACTIONS.CONCEALED_HAND });
   }
   
@@ -198,10 +198,9 @@ const checkSingleSetType = (handData) => {
     return { ...SCORING_PATTERNS.SINGLE_SET_TYPE.ALL_QUADRUPLETS };
   }
   
-  // All Concealed Triplets
+  // All Concealed Triplets - requires fully concealed hand
   const allTriplets = sets.every(s => s.type === SET_TYPES.TRIPLET);
-  const allConcealed = handData.allConcealed;
-  if (allTriplets && allConcealed && sets.length === 4) {
+  if (allTriplets && sets.length === 4) {
     return { ...SCORING_PATTERNS.SINGLE_SET_TYPE.ALL_CONCEALED_TRIPLETS };
   }
   

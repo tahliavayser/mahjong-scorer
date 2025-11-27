@@ -15,78 +15,81 @@ const TileDisplay = ({ tiles, onTileChange }) => {
       const dotMap = {
         1: '🀙', 2: '🀚', 3: '🀛', 4: '🀜', 5: '🀝', 6: '🀞', 7: '🀟', 8: '🀠', 9: '🀡'
       };
-      return dotMap[tile.value] || `○ ${tile.value}`;
+      return { icon: dotMap[tile.value] || '○', label: `${tile.value} Dot` };
     }
     // Sticks (BAMS) - bamboo
     if (tile.type === 'sticks') {
       const stickMap = {
         1: '🀐', 2: '🀑', 3: '🀒', 4: '🀓', 5: '🀔', 6: '🀕', 7: '🀖', 8: '🀗', 9: '🀘'
       };
-      return stickMap[tile.value] || `🎋 ${tile.value}`;
+      return { icon: stickMap[tile.value] || '🎋', label: `${tile.value} Bam` };
     }
     // Man (CRAKS) - characters/萬
     if (tile.type === 'man') {
       const manMap = {
         1: '🀇', 2: '🀈', 3: '🀉', 4: '🀊', 5: '🀋', 6: '🀌', 7: '🀍', 8: '🀎', 9: '🀏'
       };
-      return manMap[tile.value] || `萬 ${tile.value}`;
+      return { icon: manMap[tile.value] || '萬', label: `${tile.value} Crak` };
     }
     // Winds
     if (tile.type === 'winds') {
       const windMap = { 
-        east: '🀀 東', 
-        south: '🀁 南', 
-        west: '🀂 西', 
-        north: '🀃 北' 
+        east: { icon: '🀀', label: 'East' },
+        south: { icon: '🀁', label: 'South' },
+        west: { icon: '🀂', label: 'West' },
+        north: { icon: '🀃', label: 'North' }
       };
-      return windMap[tile.value] || tile.value;
+      return windMap[tile.value] || { icon: '🀀', label: tile.value };
     }
     // Dragons
     if (tile.type === 'dragons') {
       const dragonMap = { 
-        red: '🀄 中', 
-        green: '🀅 發', 
-        white: '🀆 白' 
+        red: { icon: '🀄', label: 'Red' },
+        green: { icon: '🀅', label: 'Green' },
+        white: { icon: '🀆', label: 'White' }
       };
-      return dragonMap[tile.value] || tile.value;
+      return dragonMap[tile.value] || { icon: '🀄', label: tile.value };
     }
     // Flowers
     if (tile.type === 'flowers') {
       const flowerMap = { 
-        plum: '🀢 梅', 
-        orchid: '🀣 蘭', 
-        mum: '🀤 菊', 
-        bamboo: '🀥 竹' 
+        plum: { icon: '🀢', label: 'Plum' },
+        orchid: { icon: '🀣', label: 'Orchid' },
+        mum: { icon: '🀤', label: 'Mum' },
+        bamboo: { icon: '🀥', label: 'Bamboo' }
       };
-      return flowerMap[tile.value] || tile.value;
+      return flowerMap[tile.value] || { icon: '🀢', label: tile.value };
     }
     // Seasons
     if (tile.type === 'seasons') {
       const seasonMap = { 
-        spring: '🀦 春', 
-        summer: '🀧 夏', 
-        autumn: '🀨 秋', 
-        winter: '🀩 冬' 
+        spring: { icon: '🀦', label: 'Spring' },
+        summer: { icon: '🀧', label: 'Summer' },
+        autumn: { icon: '🀨', label: 'Autumn' },
+        winter: { icon: '🀩', label: 'Winter' }
       };
-      return seasonMap[tile.value] || tile.value;
+      return seasonMap[tile.value] || { icon: '🀦', label: tile.value };
     }
-    return `${tile.type} ${tile.value}`;
+    return { icon: tile.value, label: tile.type };
   };
 
   return (
     <div className="tile-display">
       <h3>Detected Tiles ({tiles.length})</h3>
       <div className="tiles-grid">
-        {tiles.map((tile, index) => (
-          <div key={index} className="tile-card">
-            <div className="tile-content">
-              {getTileDisplay(tile)}
+        {tiles.map((tile, index) => {
+          const display = getTileDisplay(tile);
+          return (
+            <div key={index} className="tile-card">
+              <div className="tile-content">
+                {display.icon}
+              </div>
+              <div className="tile-info">
+                {display.label}
+              </div>
             </div>
-            <div className="tile-info">
-              {tile.type}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       {onTileChange && (
         <div className="tile-actions">
