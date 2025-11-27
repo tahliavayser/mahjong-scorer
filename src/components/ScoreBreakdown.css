@@ -22,13 +22,15 @@
 }
 
 .total-score.winning {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a1a1a;
   color: white;
+  border: 3px solid #dc2626;
 }
 
 .total-score.not-winning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #2d2d2d;
   color: white;
+  border: 3px solid #666;
 }
 
 .total-score h2 {
@@ -68,9 +70,9 @@
 
 .patterns-list h3 {
   margin: 0 0 20px 0;
-  color: #2c3e50;
+  color: #1a1a1a;
   font-size: 24px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #dc2626;
   padding-bottom: 10px;
 }
 
@@ -81,14 +83,17 @@
 }
 
 .pattern-item {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f9f9f9;
+  border: 2px solid #e5e5e5;
   border-radius: 8px;
   padding: 15px;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .pattern-item:hover {
   transform: translateX(5px);
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .pattern-header {
@@ -105,7 +110,7 @@
 }
 
 .pattern-fan {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #dc2626;
   color: white;
   padding: 5px 15px;
   border-radius: 20px;

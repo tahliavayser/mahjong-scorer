@@ -10,7 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   min-height: 100vh;
 }
 
@@ -36,7 +36,7 @@ body {
 }
 
 .app-header h1:hover {
-  color: #667eea;
+  color: #dc2626;
   transform: scale(1.02);
 }
 
@@ -67,14 +67,16 @@ body {
 }
 
 .mode-btn:hover {
-  background: white;
-  color: #667eea;
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
   transform: translateY(-2px);
 }
 
 .mode-btn.active {
-  background: white;
-  color: #667eea;
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
 }
 
 .app-main {
@@ -164,7 +166,7 @@ body {
 }
 
 .btn-example {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #dc2626;
   color: white;
   padding: 15px 25px;
   font-size: 16px;
@@ -176,8 +178,9 @@ body {
 }
 
 .btn-example:hover {
+  background: #b91c1c;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
 .app-footer {

@@ -61,8 +61,8 @@
 }
 
 .radio-option:hover {
-  border-color: #667eea;
-  background: #f5f7ff;
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .radio-option input[type="radio"] {
@@ -71,16 +71,16 @@
   cursor: pointer;
   width: 18px;
   height: 18px;
-  accent-color: #667eea;
+  accent-color: #dc2626;
 }
 
 .radio-option input[type="radio"]:checked ~ .radio-content {
-  color: #667eea;
+  color: #dc2626;
 }
 
 .radio-option:has(input:checked) {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #f5f7ff 0%, #e8ebff 100%);
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .radio-content {
@@ -128,13 +128,13 @@
 }
 
 .select-input:hover {
-  border-color: #667eea;
+  border-color: #dc2626;
 }
 
 .select-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 .checkbox-option {
@@ -149,8 +149,8 @@
 }
 
 .checkbox-option:hover {
-  border-color: #667eea;
-  background: #f5f7ff;
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .checkbox-option input[type="checkbox"] {
@@ -158,12 +158,12 @@
   cursor: pointer;
   width: 20px;
   height: 20px;
-  accent-color: #667eea;
+  accent-color: #dc2626;
 }
 
 .checkbox-option:has(input:checked) {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #f5f7ff 0%, #e8ebff 100%);
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .checkbox-option span {
@@ -204,13 +204,14 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #dc2626;
   color: white;
 }
 
 .btn-submit:hover {
+  background: #b91c1c;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
 @media (max-width: 768px) {

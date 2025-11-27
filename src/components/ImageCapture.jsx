@@ -55,6 +55,11 @@ const ImageCapture = ({ onImageCapture }) => {
       const url = URL.createObjectURL(file);
       setCapturedImage(url);
       onImageCapture(file, url);
+      
+      // Show helpful message
+      setTimeout(() => {
+        alert('💡 Tip: For now, use Manual Selection mode for the most accurate results. Image detection will be available once you train a model!');
+      }, 1000);
     }
   };
 

@@ -44,7 +44,7 @@
 }
 
 .selected-tile {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a1a1a;
   color: white;
   padding: 10px 15px;
   border-radius: 8px;
@@ -53,13 +53,15 @@
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
+  border: 2px solid #dc2626;
 }
 
 .selected-tile:hover {
   transform: scale(1.05);
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #dc2626;
+  border-color: #b91c1c;
 }
 
 .tile-display {
@@ -103,13 +105,14 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #dc2626;
   color: white;
 }
 
 .btn-submit:hover:not(:disabled) {
+  background: #b91c1c;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
 .tile-picker {
@@ -127,9 +130,9 @@
 
 .tile-category h4 {
   margin: 0 0 15px 0;
-  color: #2c3e50;
+  color: #1a1a1a;
   font-size: 18px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #dc2626;
   padding-bottom: 8px;
 }
 
@@ -140,22 +143,43 @@
 }
 
 .tile-btn {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border: 2px solid transparent;
-  padding: 12px 18px;
+  background: white;
+  border: 2px solid #333;
+  padding: 12px 8px;
   border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 60px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tile-btn:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+  background: #fef2f2;
+  border-color: #dc2626;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+}
+
+.tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tile-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .tile-btn:active {
