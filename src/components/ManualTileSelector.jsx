@@ -41,23 +41,64 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
   };
 
   const getTileDisplay = (tile) => {
-    if (tile.type === 'dots') return `🔵 ${tile.value}`;
-    if (tile.type === 'sticks') return `🎋 ${tile.value}`;
-    if (tile.type === 'man') return `🀄 ${tile.value}`;
+    // Dots (DOTS) - circles
+    if (tile.type === 'dots') {
+      const dotMap = {
+        1: '🀙', 2: '🀚', 3: '🀛', 4: '🀜', 5: '🀝', 6: '🀞', 7: '🀟', 8: '🀠', 9: '🀡'
+      };
+      return dotMap[tile.value] || `○ ${tile.value}`;
+    }
+    // Sticks (BAMS) - bamboo
+    if (tile.type === 'sticks') {
+      const stickMap = {
+        1: '🀐', 2: '🀑', 3: '🀒', 4: '🀓', 5: '🀔', 6: '🀕', 7: '🀖', 8: '🀗', 9: '🀘'
+      };
+      return stickMap[tile.value] || `🎋 ${tile.value}`;
+    }
+    // Man (CRAKS) - characters/萬
+    if (tile.type === 'man') {
+      const manMap = {
+        1: '🀇', 2: '🀈', 3: '🀉', 4: '🀊', 5: '🀋', 6: '🀌', 7: '🀍', 8: '🀎', 9: '🀏'
+      };
+      return manMap[tile.value] || `萬 ${tile.value}`;
+    }
+    // Winds
     if (tile.type === 'winds') {
-      const windMap = { east: '東', south: '南', west: '西', north: '北' };
+      const windMap = { 
+        east: '🀀 東', 
+        south: '🀁 南', 
+        west: '🀂 西', 
+        north: '🀃 北' 
+      };
       return windMap[tile.value];
     }
+    // Dragons
     if (tile.type === 'dragons') {
-      const dragonMap = { red: '中', green: '發', white: '白' };
+      const dragonMap = { 
+        red: '🀄 中', 
+        green: '🀅 發', 
+        white: '🀆 白' 
+      };
       return dragonMap[tile.value];
     }
+    // Flowers
     if (tile.type === 'flowers') {
-      const flowerMap = { plum: '梅', orchid: '蘭', mum: '菊', bamboo: '竹' };
+      const flowerMap = { 
+        plum: '🀢 梅', 
+        orchid: '🀣 蘭', 
+        mum: '🀤 菊', 
+        bamboo: '🀥 竹' 
+      };
       return flowerMap[tile.value];
     }
+    // Seasons
     if (tile.type === 'seasons') {
-      const seasonMap = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+      const seasonMap = { 
+        spring: '🀦 春', 
+        summer: '🀧 夏', 
+        autumn: '🀨 秋', 
+        winter: '🀩 冬' 
+      };
       return seasonMap[tile.value];
     }
     return `${tile.value}`;
@@ -99,33 +140,48 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
         <div className="tile-category">
           <h4>Dots (筒子)</h4>
           <div className="tile-buttons">
-            {tileOptions.dots.map(value => (
-              <button key={value} onClick={() => addTile('dots', value)} className="tile-btn">
-                🔵 {value}
-              </button>
-            ))}
+            {tileOptions.dots.map(value => {
+              const dotMap = {
+                1: '🀙', 2: '🀚', 3: '🀛', 4: '🀜', 5: '🀝', 6: '🀞', 7: '🀟', 8: '🀠', 9: '🀡'
+              };
+              return (
+                <button key={value} onClick={() => addTile('dots', value)} className="tile-btn">
+                  {dotMap[value]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         <div className="tile-category">
-          <h4>Sticks (索子)</h4>
+          <h4>Bams (索子)</h4>
           <div className="tile-buttons">
-            {tileOptions.sticks.map(value => (
-              <button key={value} onClick={() => addTile('sticks', value)} className="tile-btn">
-                🎋 {value}
-              </button>
-            ))}
+            {tileOptions.sticks.map(value => {
+              const stickMap = {
+                1: '🀐', 2: '🀑', 3: '🀒', 4: '🀓', 5: '🀔', 6: '🀕', 7: '🀖', 8: '🀗', 9: '🀘'
+              };
+              return (
+                <button key={value} onClick={() => addTile('sticks', value)} className="tile-btn">
+                  {stickMap[value]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         <div className="tile-category">
-          <h4>Man (萬子)</h4>
+          <h4>Craks (萬子)</h4>
           <div className="tile-buttons">
-            {tileOptions.man.map(value => (
-              <button key={value} onClick={() => addTile('man', value)} className="tile-btn">
-                🀄 {value}
-              </button>
-            ))}
+            {tileOptions.man.map(value => {
+              const manMap = {
+                1: '🀇', 2: '🀈', 3: '🀉', 4: '🀊', 5: '🀋', 6: '🀌', 7: '🀍', 8: '🀎', 9: '🀏'
+              };
+              return (
+                <button key={value} onClick={() => addTile('man', value)} className="tile-btn">
+                  {manMap[value]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -133,7 +189,12 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <h4>Winds (風牌)</h4>
           <div className="tile-buttons">
             {tileOptions.winds.map(value => {
-              const windMap = { east: '東', south: '南', west: '西', north: '北' };
+              const windMap = { 
+                east: '🀀 東', 
+                south: '🀁 南', 
+                west: '🀂 西', 
+                north: '🀃 北' 
+              };
               return (
                 <button key={value} onClick={() => addTile('winds', value)} className="tile-btn">
                   {windMap[value]}
@@ -147,7 +208,11 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <h4>Dragons (三元牌)</h4>
           <div className="tile-buttons">
             {tileOptions.dragons.map(value => {
-              const dragonMap = { red: '中', green: '發', white: '白' };
+              const dragonMap = { 
+                red: '🀄 中', 
+                green: '🀅 發', 
+                white: '🀆 白' 
+              };
               return (
                 <button key={value} onClick={() => addTile('dragons', value)} className="tile-btn">
                   {dragonMap[value]}
@@ -161,7 +226,12 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <h4>Flowers (花牌)</h4>
           <div className="tile-buttons">
             {tileOptions.flowers.map(value => {
-              const flowerMap = { plum: '梅', orchid: '蘭', mum: '菊', bamboo: '竹' };
+              const flowerMap = { 
+                plum: '🀢 梅', 
+                orchid: '🀣 蘭', 
+                mum: '🀤 菊', 
+                bamboo: '🀥 竹' 
+              };
               return (
                 <button key={value} onClick={() => addTile('flowers', value)} className="tile-btn">
                   {flowerMap[value]}
@@ -175,7 +245,12 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <h4>Seasons (季牌)</h4>
           <div className="tile-buttons">
             {tileOptions.seasons.map(value => {
-              const seasonMap = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+              const seasonMap = { 
+                spring: '🀦 春', 
+                summer: '🀧 夏', 
+                autumn: '🀨 秋', 
+                winter: '🀩 冬' 
+              };
               return (
                 <button key={value} onClick={() => addTile('seasons', value)} className="tile-btn">
                   {seasonMap[value]}

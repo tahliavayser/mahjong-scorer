@@ -4,7 +4,7 @@ import TileDisplay from './components/TileDisplay';
 import ScoreBreakdown from './components/ScoreBreakdown';
 import ManualTileSelector from './components/ManualTileSelector';
 import GameContextForm from './components/GameContextForm';
-import { initializeTileDetection, detectTilesFromImage, getExampleHands } from './utils/tileDetection';
+import { initializeTileDetection, detectTilesFromImage } from './utils/tileDetection';
 import { parseHand } from './utils/handValidator';
 import { calculateScore, formatScoreBreakdown } from './utils/scoringEngine';
 import './App.css';
@@ -119,14 +119,6 @@ function App() {
     }
   };
 
-  const loadExampleHand = (handType) => {
-    const examples = getExampleHands();
-    const tiles = examples[handType];
-    if (tiles) {
-      setDetectedTiles(tiles);
-      scoreHand(tiles);
-    }
-  };
 
   const resetApp = () => {
     setDetectedTiles(null);
@@ -138,7 +130,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🀄 Mahjong Hand Scorer</h1>
+        <h1 onClick={resetApp} style={{ cursor: 'pointer' }}>🀄 Mahjong Hand Scorer</h1>
         <p className="subtitle">Hong Kong Scoring System</p>
       </header>
 
@@ -199,38 +191,10 @@ function App() {
           </>
         )}
 
-        {!detectedTiles && !isProcessing && mode === 'image' && (
-          <div className="example-hands">
-            <h3>Try Example Hands</h3>
-            <div className="example-buttons">
-              <button 
-                className="btn btn-example"
-                onClick={() => loadExampleHand('allSequences')}
-              >
-                All Sequences (1 Fan)
-              </button>
-              <button 
-                className="btn btn-example"
-                onClick={() => loadExampleHand('allTriplets')}
-              >
-                All Triplets (3 Fan)
-              </button>
-              <button 
-                className="btn btn-example"
-                onClick={() => loadExampleHand('bigThreeDragons')}
-              >
-                Big Three Dragons (8 Fan)
-              </button>
-            </div>
-          </div>
-        )}
       </main>
 
       <footer className="app-footer">
         <p>Built with React + TensorFlow.js</p>
-        <p className="note">
-          Note: Image detection uses mock data. Train a custom model for production use.
-        </p>
       </footer>
     </div>
   );
