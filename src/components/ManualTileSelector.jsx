@@ -65,39 +65,39 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
     // Winds
     if (tile.type === 'winds') {
       const windMap = { 
-        east: { icon: '🀀 東', label: 'East' },
-        south: { icon: '🀁 南', label: 'South' },
-        west: { icon: '🀂 西', label: 'West' },
-        north: { icon: '🀃 北', label: 'North' }
+        east: { icon: '🀀', label: 'East' },
+        south: { icon: '🀁', label: 'South' },
+        west: { icon: '🀂', label: 'West' },
+        north: { icon: '🀃', label: 'North' }
       };
       return windMap[tile.value] || { icon: '🀀', label: tile.value };
     }
     // Dragons
     if (tile.type === 'dragons') {
       const dragonMap = { 
-        red: { icon: '🀄 中', label: 'Red Dragon' },
-        green: { icon: '🀅 發', label: 'Green Dragon' },
-        white: { icon: '🀆 白', label: 'White Dragon' }
+        red: { icon: '🀄', label: 'Red Dragon' },
+        green: { icon: '🀅', label: 'Green Dragon' },
+        white: { icon: '🀆', label: 'White Dragon' }
       };
       return dragonMap[tile.value] || { icon: '🀄', label: tile.value };
     }
     // Flowers
     if (tile.type === 'flowers') {
       const flowerMap = { 
-        plum: { icon: '🀢 梅', label: 'Plum' },
-        orchid: { icon: '🀣 蘭', label: 'Orchid' },
-        mum: { icon: '🀤 菊', label: 'Mum' },
-        bamboo: { icon: '🀥 竹', label: 'Bamboo' }
+        plum: { icon: '🀢', label: 'Plum' },
+        orchid: { icon: '🀣', label: 'Orchid' },
+        mum: { icon: '🀤', label: 'Mum' },
+        bamboo: { icon: '🀥', label: 'Bamboo' }
       };
       return flowerMap[tile.value] || { icon: '🀢', label: tile.value };
     }
     // Seasons
     if (tile.type === 'seasons') {
       const seasonMap = { 
-        spring: { icon: '🀦 春', label: 'Spring' },
-        summer: { icon: '🀧 夏', label: 'Summer' },
-        autumn: { icon: '🀨 秋', label: 'Autumn' },
-        winter: { icon: '🀩 冬', label: 'Winter' }
+        spring: { icon: '🀦', label: 'Spring' },
+        summer: { icon: '🀧', label: 'Summer' },
+        autumn: { icon: '🀨', label: 'Autumn' },
+        winter: { icon: '🀩', label: 'Winter' }
       };
       return seasonMap[tile.value] || { icon: '🀦', label: tile.value };
     }
@@ -204,10 +204,10 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <div className="tile-buttons">
             {tileOptions.winds.map(value => {
               const windMap = { 
-                east: { icon: '🀀 東', label: 'East' },
-                south: { icon: '🀁 南', label: 'South' },
-                west: { icon: '🀂 西', label: 'West' },
-                north: { icon: '🀃 北', label: 'North' }
+                east: { icon: '🀀', label: 'East' },
+                south: { icon: '🀁', label: 'South' },
+                west: { icon: '🀂', label: 'West' },
+                north: { icon: '🀃', label: 'North' }
               };
               return (
                 <button key={value} onClick={() => addTile('winds', value)} className="tile-btn">
@@ -226,9 +226,9 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <div className="tile-buttons">
             {tileOptions.dragons.map(value => {
               const dragonMap = { 
-                red: { icon: '🀄 中', label: 'Red' },
-                green: { icon: '🀅 發', label: 'Green' },
-                white: { icon: '🀆 白', label: 'White' }
+                red: { icon: '🀄', label: 'Red' },
+                green: { icon: '🀅', label: 'Green' },
+                white: { icon: '🀆', label: 'White' }
               };
               return (
                 <button key={value} onClick={() => addTile('dragons', value)} className="tile-btn">
@@ -247,10 +247,10 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <div className="tile-buttons">
             {tileOptions.flowers.map(value => {
               const flowerMap = { 
-                plum: { icon: '🀢 梅', label: 'Plum' },
-                orchid: { icon: '🀣 蘭', label: 'Orchid' },
-                mum: { icon: '🀤 菊', label: 'Mum' },
-                bamboo: { icon: '🀥 竹', label: 'Bamboo' }
+                plum: { icon: '🀢', label: 'Plum' },
+                orchid: { icon: '🀣', label: 'Orchid' },
+                mum: { icon: '🀤', label: 'Mum' },
+                bamboo: { icon: '🀥', label: 'Bamboo' }
               };
               return (
                 <button key={value} onClick={() => addTile('flowers', value)} className="tile-btn">
@@ -269,10 +269,10 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
           <div className="tile-buttons">
             {tileOptions.seasons.map(value => {
               const seasonMap = { 
-                spring: { icon: '🀦 春', label: 'Spring' },
-                summer: { icon: '🀧 夏', label: 'Summer' },
-                autumn: { icon: '🀨 秋', label: 'Autumn' },
-                winter: { icon: '🀩 冬', label: 'Winter' }
+                spring: { icon: '🀦', label: 'Spring' },
+                summer: { icon: '🀧', label: 'Summer' },
+                autumn: { icon: '🀨', label: 'Autumn' },
+                winter: { icon: '🀩', label: 'Winter' }
               };
               return (
                 <button key={value} onClick={() => addTile('seasons', value)} className="tile-btn">
