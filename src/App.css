@@ -99,7 +99,7 @@ body {
   width: 60px;
   height: 60px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #667eea;
+  border-top: 5px solid #dc2626;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
@@ -134,13 +134,15 @@ body {
 }
 
 .btn-reset {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #1a1a1a;
   color: white;
+  border: 2px solid #dc2626;
 }
 
 .btn-reset:hover {
+  background: #dc2626;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
 .example-hands {
