@@ -110,20 +110,21 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
       
       <div className="selected-tiles-section">
         <h3>Selected Tiles ({selectedTiles.length})</h3>
-        <div className="selected-tiles">
+        <div className="selected-tiles-grid">
           {selectedTiles.length === 0 ? (
             <p className="no-tiles">No tiles selected yet</p>
           ) : (
             selectedTiles.map((tile, index) => {
               const display = getTileDisplay(tile);
-              console.log('Tile:', tile, 'Display:', display); // Debug
               return (
-                <div key={index} className="selected-tile" onClick={() => removeTile(index)}>
-                  <div className="tile-display">
-                    <span className="selected-icon">{display?.icon || '🀫'}</span>
-                    <span className="selected-label">{display?.label || `${tile.type} ${tile.value}`}</span>
+                <div key={index} className="selected-tile-card" onClick={() => removeTile(index)}>
+                  <div className="tile-content">
+                    {display?.icon || '🀫'}
                   </div>
-                  <span className="remove-icon">×</span>
+                  <div className="tile-info">
+                    {display?.label || `${tile.type} ${tile.value}`}
+                  </div>
+                  <div className="remove-badge">×</div>
                 </div>
               );
             })
