@@ -1,0 +1,61 @@
+description: Ultralytics best model trained on mahjong_dataset/data.yaml
+author: Ultralytics
+date: '2025-12-12T23:36:49.594863'
+version: 8.3.237
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: 1B
+  1: 1C
+  2: 1D
+  3: 1F
+  4: 1S
+  5: 2B
+  6: 2C
+  7: 2D
+  8: 2F
+  9: 2S
+  10: 3B
+  11: 3C
+  12: 3D
+  13: 3F
+  14: 3S
+  15: 4B
+  16: 4C
+  17: 4D
+  18: 4F
+  19: 4S
+  20: 5B
+  21: 5C
+  22: 5D
+  23: 6B
+  24: 6C
+  25: 6D
+  26: 7B
+  27: 7C
+  28: 7D
+  29: 8B
+  30: 8C
+  31: 8D
+  32: 9B
+  33: 9C
+  34: 9D
+  35: EW
+  36: GD
+  37: NW
+  38: RD
+  39: SW
+  40: WD
+  41: WW
+args:
+  batch: 1
+  half: false
+  int8: false
+  nms: false
+channels: 3
