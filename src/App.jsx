@@ -43,13 +43,27 @@ function App() {
 
       // Detect tiles from the image
       const tiles = await detectTilesFromImage(imageBlob, img);
-      setDetectedTiles(tiles);
-
-      // Show context form before scoring
-      prepareForScoring(tiles);
+      
+      if (tiles.length === 0) {
+        setDetectedTiles([]);
+        setScoreResult({
+          error: 'No tiles detected in the image. Try taking a clearer photo with good lighting, or use Manual Selection mode.'
+        });
+      } else if (tiles.length < 13) {
+        setDetectedTiles(tiles);
+        setScoreResult({
+          error: `Only ${tiles.length} tiles detected. A valid hand needs 13-14 tiles. Try a clearer photo or use Manual Selection to add missing tiles.`
+        });
+      } else {
+        setDetectedTiles(tiles);
+        // Show context form before scoring
+        prepareForScoring(tiles);
+      }
     } catch (error) {
       console.error('Error processing image:', error);
-      alert('Error processing image. Please try again or use manual tile selection.');
+      setScoreResult({
+        error: `Detection error: ${error.message}. Please use Manual Selection mode.`
+      });
     } finally {
       setIsProcessing(false);
     }

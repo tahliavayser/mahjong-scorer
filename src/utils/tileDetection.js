@@ -73,29 +73,51 @@ export const initializeTileDetection = async () => {
     await tf.ready();
     console.log('TensorFlow.js initialized, backend:', tf.getBackend());
     
-    // Load the trained YOLOv8 model
-    console.log('Loading mahjong detection model...');
-    model = await tf.loadGraphModel('/mahjong-scorer/models/mahjong-detector/model.json');
-    console.log('Model loaded successfully!');
+    // Determine the base path for the model
+    const basePath = import.meta.env.BASE_URL || '/';
+    const modelPath = `${basePath}models/mahjong-detector/model.json`;
     
-    // Warm up the model with a dummy prediction
-    const dummyInput = tf.zeros([1, 640, 640, 3]);
-    await model.predict(dummyInput);
-    dummyInput.dispose();
-    console.log('Model warmed up');
+    console.log('Loading mahjong detection model from:', modelPath);
+    
+    try {
+      model = await tf.loadGraphModel(modelPath);
+      console.log('✅ Model loaded successfully!');
+    } catch (e1) {
+      console.log('First path failed, trying alternatives...');
+      // Try alternative paths
+      const altPaths = [
+        '/mahjong-scorer/models/mahjong-detector/model.json',
+        '/models/mahjong-detector/model.json',
+        './models/mahjong-detector/model.json'
+      ];
+      
+      for (const path of altPaths) {
+        try {
+          console.log('Trying:', path);
+          model = await tf.loadGraphModel(path);
+          console.log('✅ Model loaded from:', path);
+          break;
+        } catch (e) {
+          console.log('Failed:', path);
+        }
+      }
+    }
+    
+    if (model) {
+      // Warm up the model with a dummy prediction
+      console.log('Warming up model...');
+      const dummyInput = tf.zeros([1, 640, 640, 3]);
+      await model.predict(dummyInput);
+      dummyInput.dispose();
+      console.log('✅ Model ready!');
+    } else {
+      console.warn('⚠️ Could not load model from any path');
+    }
     
     return model;
   } catch (error) {
     console.error('Error initializing tile detection:', error);
-    // Try loading without the base path (for local dev)
-    try {
-      model = await tf.loadGraphModel('/models/mahjong-detector/model.json');
-      console.log('Model loaded (local path)');
-      return model;
-    } catch (e) {
-      console.error('Failed to load model:', e);
-      return null;
-    }
+    return null;
   }
 };
 
@@ -193,23 +215,26 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
     }
     
     if (!model) {
-      console.warn('Model still not available, using mock detection');
-      return generateMockTiles();
+      console.error('❌ Model not available - tile detection will not work');
+      throw new Error('Tile detection model not loaded. Please try again or use Manual Selection.');
     }
     
-    console.log('Running tile detection...');
+    console.log('Running tile detection on image:', imageElement.width, 'x', imageElement.height);
     
     // Preprocess image
     const inputTensor = preprocessImage(imageElement);
+    console.log('Input tensor shape:', inputTensor.shape);
     
     // Run inference
+    console.log('Running model inference...');
     const output = await model.predict(inputTensor);
+    console.log('Model output:', output);
     
     // Cleanup input tensor
     inputTensor.dispose();
     
     // Post-process to get tile detections
-    const detections = postprocessDetections(output, 0.3);
+    const detections = postprocessDetections(output, 0.25); // Lower threshold
     
     // Cleanup output
     if (Array.isArray(output)) {
@@ -218,21 +243,22 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
       output.dispose();
     }
     
-    console.log(`Detected ${detections.length} tiles`);
+    console.log(`Detected ${detections.length} tiles:`, detections);
     
     if (detections.length === 0) {
-      console.warn('No tiles detected, using mock for demo');
-      return generateMockTiles();
+      console.warn('⚠️ No tiles detected in image');
+      // Return empty array - let the UI handle this
+      return [];
     }
     
     // Remove duplicates and sort
     const uniqueTiles = removeDuplicateDetections(detections);
+    console.log('Final tiles after dedup:', uniqueTiles);
     
     return uniqueTiles;
   } catch (error) {
     console.error('Error detecting tiles:', error);
-    // Fallback to mock detection on error
-    return generateMockTiles();
+    throw error; // Re-throw so the UI can handle it
   }
 };
 
