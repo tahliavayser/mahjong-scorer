@@ -144,49 +144,61 @@ const preprocessImage = (imageElement) => {
 
 /**
  * Post-process YOLOv8 output to get detections
+ * YOLOv8 TF.js output shape: [1, 46, 8400]
+ * - 46 = 4 (bbox: x, y, w, h) + 42 (class scores)
+ * - 8400 = number of detection anchors
  */
-const postprocessDetections = (output, confidenceThreshold = 0.5) => {
+const postprocessDetections = (output, confidenceThreshold = 0.25) => {
   const detections = [];
   
-  // YOLOv8 TF.js output format varies - handle common cases
   let outputData;
-  
   if (Array.isArray(output)) {
     outputData = output[0];
   } else {
     outputData = output;
   }
   
-  const data = outputData.dataSync();
   const shape = outputData.shape;
-  
   console.log('Output shape:', shape);
   
-  // YOLOv8 output is typically [1, num_classes + 4, num_detections]
-  // or [1, num_detections, num_classes + 4]
+  // Shape is [1, 46, 8400]
+  // Transpose to [1, 8400, 46] for easier processing
+  const transposed = outputData.transpose([0, 2, 1]);
+  const data = transposed.dataSync();
+  transposed.dispose();
   
-  if (shape.length === 3) {
-    const numDetections = shape[2] || shape[1];
-    const numClasses = 42; // Your model has 42 classes
+  const numDetections = shape[2]; // 8400
+  const numValues = shape[1]; // 46 (4 bbox + 42 classes)
+  const numClasses = 42;
+  
+  console.log(`Processing ${numDetections} detections with ${numClasses} classes`);
+  
+  // Parse each detection
+  for (let i = 0; i < numDetections; i++) {
+    const offset = i * numValues;
     
-    // Parse detections
-    for (let i = 0; i < numDetections; i++) {
-      // Try to extract class confidences
-      let maxConfidence = 0;
-      let maxClassId = 0;
+    // First 4 values are bbox (x_center, y_center, width, height)
+    // const x = data[offset];
+    // const y = data[offset + 1];
+    // const w = data[offset + 2];
+    // const h = data[offset + 3];
+    
+    // Remaining 42 values are class scores
+    let maxConfidence = 0;
+    let maxClassId = 0;
+    
+    for (let c = 0; c < numClasses; c++) {
+      const confidence = data[offset + 4 + c];
       
-      for (let c = 0; c < numClasses; c++) {
-        const idx = (4 + c) * numDetections + i; // Adjust based on actual format
-        const confidence = data[idx] || 0;
-        
-        if (confidence > maxConfidence) {
-          maxConfidence = confidence;
-          maxClassId = c;
-        }
+      if (confidence > maxConfidence) {
+        maxConfidence = confidence;
+        maxClassId = c;
       }
-      
-      if (maxConfidence > confidenceThreshold) {
-        const className = CLASS_NAMES[maxClassId];
+    }
+    
+    if (maxConfidence > confidenceThreshold) {
+      const className = CLASS_NAMES[maxClassId];
+      if (className) {
         const tile = classToTile(className);
         
         if (tile) {
@@ -199,6 +211,8 @@ const postprocessDetections = (output, confidenceThreshold = 0.5) => {
       }
     }
   }
+  
+  console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
   
   return detections;
 };
@@ -263,26 +277,40 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
 };
 
 /**
- * Remove duplicate detections (same tile detected multiple times)
+ * Remove duplicate detections using Non-Maximum Suppression
+ * Keep top detections, allowing up to 4 of each tile type
  */
 const removeDuplicateDetections = (detections) => {
-  // Group by tile type+value and keep highest confidence
-  const tileMap = new Map();
+  // Sort by confidence (highest first)
+  const sorted = [...detections].sort((a, b) => b.confidence - a.confidence);
   
-  for (const det of detections) {
+  // Count how many of each tile type we've kept
+  const tileCounts = new Map();
+  const result = [];
+  
+  for (const det of sorted) {
     const key = `${det.type}-${det.value}`;
-    const existing = tileMap.get(key);
+    const count = tileCounts.get(key) || 0;
     
-    if (!existing || det.confidence > existing.confidence) {
-      tileMap.set(key, det);
+    // Allow up to 4 of each tile (mahjong has 4 copies of each regular tile)
+    if (count < 4) {
+      result.push({
+        type: det.type,
+        value: det.value,
+        concealed: true,
+        confidence: det.confidence
+      });
+      tileCounts.set(key, count + 1);
     }
   }
   
-  // For mahjong, we can have up to 4 of the same tile
-  // This simple approach keeps one of each - adjust as needed
-  return Array.from(tileMap.values()).map(({ type, value, concealed }) => ({
+  // Limit to reasonable hand size (max 22: 14 regular + 8 bonus)
+  const finalTiles = result.slice(0, 22).map(({ type, value, concealed }) => ({
     type, value, concealed
   }));
+  
+  console.log(`After NMS: ${finalTiles.length} tiles`);
+  return finalTiles;
 };
 
 /**
