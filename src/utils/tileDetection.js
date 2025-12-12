@@ -148,7 +148,7 @@ const preprocessImage = (imageElement) => {
  * - 46 = 4 (bbox: x, y, w, h) + 42 (class scores)
  * - 8400 = number of detection anchors
  */
-const postprocessDetections = (output, confidenceThreshold = 0.25) => {
+const postprocessDetections = (output, confidenceThreshold = 0.1) => {
   const detections = [];
   
   let outputData;
@@ -173,6 +173,11 @@ const postprocessDetections = (output, confidenceThreshold = 0.25) => {
   
   console.log(`Processing ${numDetections} detections with ${numClasses} classes`);
   
+  // Debug: Find the highest confidence scores in the output
+  let globalMaxConf = 0;
+  let globalMaxClass = 0;
+  let globalMaxIdx = 0;
+  
   // Parse each detection
   for (let i = 0; i < numDetections; i++) {
     const offset = i * numValues;
@@ -194,6 +199,13 @@ const postprocessDetections = (output, confidenceThreshold = 0.25) => {
         maxConfidence = confidence;
         maxClassId = c;
       }
+      
+      // Track global max for debugging
+      if (confidence > globalMaxConf) {
+        globalMaxConf = confidence;
+        globalMaxClass = c;
+        globalMaxIdx = i;
+      }
     }
     
     if (maxConfidence > confidenceThreshold) {
@@ -210,6 +222,17 @@ const postprocessDetections = (output, confidenceThreshold = 0.25) => {
         }
       }
     }
+  }
+  
+  // Debug output
+  console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(4)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at index ${globalMaxIdx}`);
+  
+  // If no detections, log some sample values
+  if (detections.length === 0) {
+    console.log('Sample raw values from first detection:');
+    const sampleOffset = 0;
+    console.log('  BBox:', data[sampleOffset], data[sampleOffset+1], data[sampleOffset+2], data[sampleOffset+3]);
+    console.log('  Class scores (first 10):', Array.from(data.slice(sampleOffset + 4, sampleOffset + 14)).map(v => v.toFixed(4)));
   }
   
   console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
