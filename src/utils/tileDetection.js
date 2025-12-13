@@ -148,7 +148,7 @@ const preprocessImage = (imageElement) => {
  * - 46 = 4 (bbox: x, y, w, h) + 42 (class scores)
  * - 8400 = number of detection anchors
  */
-const postprocessDetections = (output, confidenceThreshold = 0.001) => {
+const postprocessDetections = (output, confidenceThreshold = 0.6) => {
   const detections = [];
   
   let outputData;
@@ -234,12 +234,34 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
   // Debug output
   console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(4)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at anchor ${globalMaxAnchor}`);
   
-  // Show raw values for best anchor
-  console.log(`Best anchor ${globalMaxAnchor} class logits (raw):`, 
-    Array.from({length: 5}, (_, c) => {
-      const idx = (4 + c) * numAnchors + globalMaxAnchor;
-      return `c${c}=${rawData[idx].toFixed(2)}`;
-    }).join(', '));
+  // Show raw logits and sigmoid values for best anchor
+  const bestLogits = [];
+  for (let c = 0; c < Math.min(10, numClasses); c++) {
+    const idx = (4 + c) * numAnchors + globalMaxAnchor;
+    const logit = rawData[idx];
+    bestLogits.push(`c${c}:${logit.toFixed(2)}→${sigmoid(logit).toFixed(3)}`);
+  }
+  console.log(`Best anchor ${globalMaxAnchor} logits→probs:`, bestLogits.join(', '));
+  
+  // Show the winning class specifically
+  const winningLogitIdx = (4 + globalMaxClass) * numAnchors + globalMaxAnchor;
+  console.log(`Winning class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}): logit=${rawData[winningLogitIdx].toFixed(4)}, prob=${globalMaxConf.toFixed(4)}`);
+  
+  // Also check if there are high logits anywhere
+  let maxLogit = -Infinity;
+  let maxLogitClass = 0;
+  let maxLogitAnchor = 0;
+  for (let c = 0; c < numClasses; c++) {
+    for (let a = 0; a < Math.min(1000, numAnchors); a++) { // Sample first 1000
+      const idx = (4 + c) * numAnchors + a;
+      if (rawData[idx] > maxLogit) {
+        maxLogit = rawData[idx];
+        maxLogitClass = c;
+        maxLogitAnchor = a;
+      }
+    }
+  }
+  console.log(`Max raw logit in first 1000 anchors: ${maxLogit.toFixed(4)} for class ${maxLogitClass} at anchor ${maxLogitAnchor}`);
   
   console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
   
