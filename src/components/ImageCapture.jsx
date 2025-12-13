@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './ImageCapture.css';
 
 const ImageCapture = ({ onImageCapture }) => {
@@ -8,6 +8,13 @@ const ImageCapture = ({ onImageCapture }) => {
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Connect stream to video element when both are ready
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream, isCamera]);
+
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -15,9 +22,6 @@ const ImageCapture = ({ onImageCapture }) => {
       });
       setStream(mediaStream);
       setIsCamera(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
     } catch (error) {
       console.error('Error accessing camera:', error);
       alert('Could not access camera. Please check permissions or use file upload instead.');
