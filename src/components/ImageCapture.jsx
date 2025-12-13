@@ -55,4 +55,73 @@ const ImageCapture = ({ onImageCapture }) => {
       const url = URL.createObjectURL(file);
       setCapturedImage(url);
       onImageCapture(file, url);
+    }
+  };
+
+  const resetCapture = () => {
+    if (capturedImage) {
+      URL.revokeObjectURL(capturedImage);
+    }
+    setCapturedImage(null);
+    stopCamera();
+  };
+
+  return (
+    <div className="image-capture">
+      <h2>Capture Your Mahjong Hand</h2>
       
+      {!capturedImage && !isCamera && (
+        <div className="capture-options">
+          <button className="btn btn-primary" onClick={startCamera}>
+            📷 Use Camera
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => fileInputRef.current?.click()}
+          >
+            📁 Upload Photo
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+          />
+        </div>
+      )}
+
+      {isCamera && (
+        <div className="camera-view">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className="video-preview"
+          />
+          <div className="camera-controls">
+            <button className="btn btn-primary" onClick={capturePhoto}>
+              📸 Capture
+            </button>
+            <button className="btn btn-secondary" onClick={stopCamera}>
+              ✕ Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {capturedImage && (
+        <div className="image-preview">
+          <img src={capturedImage} alt="Captured mahjong hand" />
+          <div className="preview-controls">
+            <button className="btn btn-secondary" onClick={resetCapture}>
+              🔄 Retake
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ImageCapture;
