@@ -157,7 +157,7 @@ function App() {
             resetApp();
           }}
         >
-          📷 Image Detection
+          Image Detection
         </button>
         <button 
           className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
@@ -166,7 +166,7 @@ function App() {
             resetApp();
           }}
         >
-          ✋ Manual Selection
+          Manual Selection
         </button>
       </div>
 
