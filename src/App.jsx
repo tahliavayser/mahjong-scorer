@@ -145,7 +145,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 onClick={resetApp} style={{ cursor: 'pointer' }}>🀄 MAHJONG MAHJIC</h1>
+        <h1 onClick={resetApp} style={{ cursor: 'pointer' }}>🀀 MAHJONG MAHJIC 🀀</h1>
         <p className="subtitle">Hong Kong Scoring System</p>
       </header>
 
