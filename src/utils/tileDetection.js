@@ -336,7 +336,8 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
     inputTensor.dispose();
     
     // Post-process to get tile detections
-    const detections = postprocessDetections(output, 0.5); // Moderate threshold
+    // Lower threshold (0.3) to catch more tiles in challenging photos (stacked, angled)
+    const detections = postprocessDetections(output, 0.3);
     
     // Cleanup output
     if (Array.isArray(output)) {
@@ -410,7 +411,9 @@ const removeDuplicateDetections = (detections) => {
   
   const kept = [];
   const suppressed = new Set();
-  const iouThreshold = 0.3; // Suppress if IoU > 0.3
+  // Higher IoU threshold (0.5) = less aggressive suppression
+  // Allows tiles that are stacked/overlapping in photo to both be detected
+  const iouThreshold = 0.5;
   
   for (let i = 0; i < sorted.length; i++) {
     if (suppressed.has(i)) continue;
