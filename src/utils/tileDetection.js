@@ -336,8 +336,10 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
     inputTensor.dispose();
     
     // Post-process to get tile detections
-    // Lower threshold (0.3) to catch more tiles in challenging photos (stacked, angled)
-    const detections = postprocessDetections(output, 0.3);
+    // Lower threshold (0.25) to catch more tiles in challenging photos
+    const detections = postprocessDetections(output, 0.25);
+    
+    console.log(`Detection summary: ${detections.length} raw detections`);
     
     // Cleanup output
     if (Array.isArray(output)) {
@@ -436,16 +438,26 @@ const removeDuplicateDetections = (detections) => {
   
   console.log(`NMS: ${detections.length} → ${kept.length} (suppressed ${suppressed.size} overlapping)`);
   
-  // Sort by X position (left to right) to maintain visual order
+  // Sort by position to maintain visual order
+  // Detect if image is more vertical or horizontal based on bbox spread
+  const xSpread = kept.length > 0 ? Math.max(...kept.map(d => d.bbox?.x || 0)) - Math.min(...kept.map(d => d.bbox?.x || 0)) : 0;
+  const ySpread = kept.length > 0 ? Math.max(...kept.map(d => d.bbox?.y || 0)) - Math.min(...kept.map(d => d.bbox?.y || 0)) : 0;
+  
   const sortedByPosition = [...kept].sort((a, b) => {
     if (a.bbox && b.bbox) {
+      // If vertical spread is greater, sort by Y (top to bottom)
+      // Otherwise sort by X (left to right)
+      if (ySpread > xSpread) {
+        return a.bbox.y - b.bbox.y;
+      }
       return a.bbox.x - b.bbox.x;
     }
     return 0;
   });
   
-  console.log('Tiles sorted by X position:', sortedByPosition.map(d => 
-    `${d.className}@${d.bbox?.x?.toFixed(0)}`
+  const sortDirection = ySpread > xSpread ? 'Y (top→bottom)' : 'X (left→right)';
+  console.log(`Tiles sorted by ${sortDirection}:`, sortedByPosition.map(d => 
+    `${d.className}@${d.bbox?.x?.toFixed(0)},${d.bbox?.y?.toFixed(0)}`
   ).join(', '));
   
   // Now apply tile type limits (max 4 of each)
