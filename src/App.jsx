@@ -41,8 +41,26 @@ function App() {
         img.onerror = reject;
       });
 
+      // Resize large images for faster processing (max 1280px on longest side)
+      let processImg = img;
+      const maxSize = 1280;
+      if (img.width > maxSize || img.height > maxSize) {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(maxSize / img.width, maxSize / img.height);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Create a new image from resized canvas
+        processImg = new Image();
+        processImg.src = canvas.toDataURL('image/jpeg', 0.9);
+        await new Promise((resolve) => { processImg.onload = resolve; });
+        console.log(`Resized image from ${img.width}x${img.height} to ${canvas.width}x${canvas.height}`);
+      }
+
       // Detect tiles from the image
-      const tiles = await detectTilesFromImage(imageBlob, img);
+      const tiles = await detectTilesFromImage(imageBlob, processImg);
       
       if (tiles.length === 0) {
         setDetectedTiles([]);
