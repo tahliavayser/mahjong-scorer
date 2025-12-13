@@ -80,13 +80,13 @@ const ImageCapture = ({ onImageCapture }) => {
       {!capturedImage && !isCamera && (
         <div className="capture-options">
           <button className="btn btn-primary" onClick={startCamera}>
-            📷 Use Camera
+            Use Camera
           </button>
           <button 
             className="btn btn-secondary" 
             onClick={() => fileInputRef.current?.click()}
           >
-            📁 Upload Photo
+            Upload Photo
           </button>
           <input
             ref={fileInputRef}
