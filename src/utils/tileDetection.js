@@ -161,17 +161,32 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
   const shape = outputData.shape;
   console.log('Output shape:', shape);
   
+  // Get raw data first to inspect
+  const rawData = outputData.dataSync();
+  console.log('Raw data length:', rawData.length);
+  console.log('First 50 raw values:', Array.from(rawData.slice(0, 50)).map(v => v.toFixed(4)));
+  
+  // Find min/max in raw data
+  let rawMin = Infinity, rawMax = -Infinity;
+  for (let i = 0; i < rawData.length; i++) {
+    if (rawData[i] < rawMin) rawMin = rawData[i];
+    if (rawData[i] > rawMax) rawMax = rawData[i];
+  }
+  console.log(`Raw data range: min=${rawMin.toFixed(6)}, max=${rawMax.toFixed(6)}`);
+  
   // Shape is [1, 46, 8400]
-  // Transpose to [1, 8400, 46] for easier processing
+  // Try BOTH interpretations to see which makes sense
+  
+  // Interpretation 1: [batch, features, detections] - need transpose
   const transposed = outputData.transpose([0, 2, 1]);
   const data = transposed.dataSync();
   transposed.dispose();
   
   const numDetections = shape[2]; // 8400
   const numValues = shape[1]; // 46 (4 bbox + 42 classes)
-  const numClasses = 42;
+  const numClasses = numValues - 4; // Should be 42
   
-  console.log(`Processing ${numDetections} detections with ${numClasses} classes`);
+  console.log(`Processing ${numDetections} detections with ${numClasses} classes (numValues=${numValues})`);
   
   // Debug: Find the highest confidence scores in the output
   let globalMaxConf = 0;
@@ -230,7 +245,13 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
   }
   
   // Debug output
-  console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(4)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at index ${globalMaxIdx}`);
+  console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(6)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at index ${globalMaxIdx}`);
+  
+  // Look at raw values for that specific detection
+  const debugOffset = globalMaxIdx * numValues;
+  console.log(`Detection ${globalMaxIdx} raw values:`);
+  console.log('  BBox:', data[debugOffset], data[debugOffset+1], data[debugOffset+2], data[debugOffset+3]);
+  console.log('  All class scores:', Array.from(data.slice(debugOffset + 4, debugOffset + 4 + numClasses)).map(v => v.toFixed(6)));
   
   // If no detections, log some sample values
   if (detections.length === 0) {
