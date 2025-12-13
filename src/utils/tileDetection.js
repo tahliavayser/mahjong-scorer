@@ -148,7 +148,7 @@ const preprocessImage = (imageElement) => {
  * - 46 = 4 (bbox: x, y, w, h) + 42 (class scores)
  * - 8400 = number of detection anchors
  */
-const postprocessDetections = (output, confidenceThreshold = 0.1) => {
+const postprocessDetections = (output, confidenceThreshold = 0.001) => {
   const detections = [];
   
   let outputData;
