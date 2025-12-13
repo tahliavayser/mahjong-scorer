@@ -152,13 +152,19 @@ function App() {
       <div className="mode-selector">
         <button 
           className={`mode-btn ${mode === 'image' ? 'active' : ''}`}
-          onClick={() => setMode('image')}
+          onClick={() => {
+            setMode('image');
+            resetApp();
+          }}
         >
           📷 Image Detection
         </button>
         <button 
           className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
-          onClick={() => setMode('manual')}
+          onClick={() => {
+            setMode('manual');
+            resetApp();
+          }}
         >
           ✋ Manual Selection
         </button>
