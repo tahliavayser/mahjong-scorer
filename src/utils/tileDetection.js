@@ -161,71 +161,61 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
   const shape = outputData.shape;
   console.log('Output shape:', shape);
   
-  // Get raw data first to inspect
-  const rawData = outputData.dataSync();
-  console.log('Raw data length:', rawData.length);
-  console.log('First 50 raw values:', Array.from(rawData.slice(0, 50)).map(v => v.toFixed(4)));
-  
-  // Find min/max in raw data
-  let rawMin = Infinity, rawMax = -Infinity;
-  for (let i = 0; i < rawData.length; i++) {
-    if (rawData[i] < rawMin) rawMin = rawData[i];
-    if (rawData[i] > rawMax) rawMax = rawData[i];
-  }
-  console.log(`Raw data range: min=${rawMin.toFixed(6)}, max=${rawMax.toFixed(6)}`);
-  
   // Shape is [1, 46, 8400]
-  // Try BOTH interpretations to see which makes sense
+  // Format: [batch, features, anchors]
+  // features = 4 (bbox) + 42 (classes)
+  // anchors = 8400 different detection locations
   
-  // Interpretation 1: [batch, features, detections] - need transpose
-  const transposed = outputData.transpose([0, 2, 1]);
-  const data = transposed.dataSync();
-  transposed.dispose();
+  // Data is laid out as:
+  // [x0,x1,x2...x8399, y0,y1...y8399, w0,w1...w8399, h0,h1...h8399, c0_0,c0_1...c0_8399, c1_0,c1_1...c1_8399, ...]
   
-  const numDetections = shape[2]; // 8400
-  const numValues = shape[1]; // 46 (4 bbox + 42 classes)
-  const numClasses = numValues - 4; // Should be 42
+  const rawData = outputData.dataSync();
+  const numAnchors = shape[2]; // 8400
+  const numFeatures = shape[1]; // 46
+  const numClasses = numFeatures - 4; // 42
   
-  console.log(`Processing ${numDetections} detections with ${numClasses} classes (numValues=${numValues})`);
+  console.log(`Processing ${numAnchors} anchors with ${numClasses} classes`);
   
-  // Debug: Find the highest confidence scores in the output
+  // Extract class scores and apply sigmoid to convert logits to probabilities
+  // Class data starts at feature index 4
   let globalMaxConf = 0;
   let globalMaxClass = 0;
-  let globalMaxIdx = 0;
+  let globalMaxAnchor = 0;
   
-  // Parse each detection
-  for (let i = 0; i < numDetections; i++) {
-    const offset = i * numValues;
+  // Sigmoid function to convert logits to probabilities
+  const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+  
+  // Parse each anchor
+  for (let a = 0; a < numAnchors; a++) {
+    // Get bbox (indices 0-3, each spanning all anchors)
+    const x = rawData[0 * numAnchors + a];
+    const y = rawData[1 * numAnchors + a];
+    const w = rawData[2 * numAnchors + a];
+    const h = rawData[3 * numAnchors + a];
     
-    // First 4 values are bbox (x_center, y_center, width, height)
-    // const x = data[offset];
-    // const y = data[offset + 1];
-    // const w = data[offset + 2];
-    // const h = data[offset + 3];
-    
-    // Remaining 42 values are class scores
+    // Get class scores (indices 4-45, each spanning all anchors)
     let maxConfidence = 0;
     let maxClassId = 0;
     
     for (let c = 0; c < numClasses; c++) {
-      const confidence = data[offset + 4 + c];
+      const rawScore = rawData[(4 + c) * numAnchors + a];
+      // Apply sigmoid to convert logit to probability
+      const confidence = sigmoid(rawScore);
       
       if (confidence > maxConfidence) {
         maxConfidence = confidence;
         maxClassId = c;
       }
       
-      // Track global max for debugging
       if (confidence > globalMaxConf) {
         globalMaxConf = confidence;
         globalMaxClass = c;
-        globalMaxIdx = i;
+        globalMaxAnchor = a;
       }
     }
     
     if (maxConfidence > confidenceThreshold) {
       const className = CLASS_NAMES[maxClassId];
-      console.log(`Detection ${i}: conf=${maxConfidence.toFixed(4)}, class=${maxClassId} (${className})`);
       if (className) {
         const tile = classToTile(className);
         
@@ -233,35 +223,25 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
           detections.push({
             ...tile,
             confidence: maxConfidence,
-            className
+            className,
+            bbox: { x, y, w, h }
           });
-        } else {
-          console.log(`  -> classToTile returned null for ${className}`);
         }
-      } else {
-        console.log(`  -> No className for class ${maxClassId}`);
       }
     }
   }
   
   // Debug output
-  console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(6)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at index ${globalMaxIdx}`);
+  console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(4)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at anchor ${globalMaxAnchor}`);
   
-  // Look at raw values for that specific detection
-  const debugOffset = globalMaxIdx * numValues;
-  console.log(`Detection ${globalMaxIdx} raw values:`);
-  console.log('  BBox:', data[debugOffset], data[debugOffset+1], data[debugOffset+2], data[debugOffset+3]);
-  console.log('  All class scores:', Array.from(data.slice(debugOffset + 4, debugOffset + 4 + numClasses)).map(v => v.toFixed(6)));
+  // Show raw values for best anchor
+  console.log(`Best anchor ${globalMaxAnchor} class logits (raw):`, 
+    Array.from({length: 5}, (_, c) => {
+      const idx = (4 + c) * numAnchors + globalMaxAnchor;
+      return `c${c}=${rawData[idx].toFixed(2)}`;
+    }).join(', '));
   
-  // If no detections, log some sample values
-  if (detections.length === 0) {
-    console.log('Sample raw values from first detection:');
-    const sampleOffset = 0;
-    console.log('  BBox:', data[sampleOffset], data[sampleOffset+1], data[sampleOffset+2], data[sampleOffset+3]);
-    console.log('  Class scores (first 10):', Array.from(data.slice(sampleOffset + 4, sampleOffset + 14)).map(v => v.toFixed(4)));
-  }
-  
-  console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold} (highest was ${globalMaxConf.toFixed(6)})`);
+  console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
   
   return detections;
 };
