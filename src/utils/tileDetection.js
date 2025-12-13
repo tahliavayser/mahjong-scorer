@@ -337,7 +337,7 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
     
     // Post-process to get tile detections
     // Lower threshold (0.25) to catch more tiles in challenging photos
-    const detections = postprocessDetections(output, 0.25);
+    const detections = postprocessDetections(output, 0.15);
     
     console.log(`Detection summary: ${detections.length} raw detections`);
     
@@ -438,6 +438,14 @@ const removeDuplicateDetections = (detections) => {
   }
   
   console.log(`NMS: ${detections.length} → ${kept.length} (suppressed ${suppressed.size} overlapping)`);
+  
+  // Count tiles by type after NMS
+  const typeCount = {};
+  for (const det of kept) {
+    const key = det.className;
+    typeCount[key] = (typeCount[key] || 0) + 1;
+  }
+  console.log('Tile counts after NMS:', typeCount);
   
   // Sort by position to maintain visual order
   // Detect if image is more vertical or horizontal based on bbox spread
