@@ -210,6 +210,7 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
     
     if (maxConfidence > confidenceThreshold) {
       const className = CLASS_NAMES[maxClassId];
+      console.log(`Detection ${i}: conf=${maxConfidence.toFixed(4)}, class=${maxClassId} (${className})`);
       if (className) {
         const tile = classToTile(className);
         
@@ -219,7 +220,11 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
             confidence: maxConfidence,
             className
           });
+        } else {
+          console.log(`  -> classToTile returned null for ${className}`);
         }
+      } else {
+        console.log(`  -> No className for class ${maxClassId}`);
       }
     }
   }
@@ -235,7 +240,7 @@ const postprocessDetections = (output, confidenceThreshold = 0.001) => {
     console.log('  Class scores (first 10):', Array.from(data.slice(sampleOffset + 4, sampleOffset + 14)).map(v => v.toFixed(4)));
   }
   
-  console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
+  console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold} (highest was ${globalMaxConf.toFixed(6)})`);
   
   return detections;
 };
