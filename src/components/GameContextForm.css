@@ -214,6 +214,83 @@
   box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
+/* Bonus Tiles Section */
+.section-description {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin: 0 0 15px 0;
+}
+
+.bonus-tiles-section {
+  margin-top: 15px;
+  transition: opacity 0.2s ease;
+}
+
+.bonus-tiles-section.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.bonus-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.bonus-label {
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 80px;
+}
+
+.bonus-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bonus-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.bonus-btn:hover:not(:disabled) {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.bonus-btn.selected {
+  border-color: #dc2626;
+  background: #dc2626;
+  color: white;
+}
+
+.bonus-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.bonus-summary {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background: #fef2f2;
+  border-radius: 8px;
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .game-context-form {
     padding: 10px;
@@ -249,6 +326,21 @@
   
   .btn {
     width: 100%;
+  }
+  
+  .bonus-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bonus-buttons {
+    width: 100%;
+  }
+  
+  .bonus-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 70px;
   }
 }
 
