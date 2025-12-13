@@ -217,13 +217,17 @@ function App() {
               />
             )}
 
-            {detectedTiles && !isProcessing && (
+            {detectedTiles && !isProcessing && mode === 'image' && (
               <>
-                <TileDisplay tiles={detectedTiles} />
+                <TileDisplay 
+                  tiles={detectedTiles} 
+                  onTilesUpdate={setDetectedTiles}
+                  onRecalculate={() => prepareForScoring(detectedTiles)}
+                />
                 {scoreResult && <ScoreBreakdown scoreResult={scoreResult} />}
                 <div className="action-buttons">
                   <button className="btn btn-reset" onClick={resetApp}>
-                    🔄 New Hand
+                    New Hand
                   </button>
                 </div>
               </>
