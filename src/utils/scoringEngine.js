@@ -366,8 +366,16 @@ const checkFlowersAndSeasons = (handData, gameContext) => {
   // Eight Flowers - instant 8 Fan win (handled in special hands)
   // Seven Flowers - instant 3 Fan win (handled in special hands)
   
+  // Map string values to seat numbers for manual selection mode
+  const flowerToSeatMap = { 'plum': 1, 'orchid': 2, 'mum': 3, 'bamboo': 4 };
+  const seasonToSeatMap = { 'spring': 1, 'summer': 2, 'autumn': 3, 'winter': 4 };
+  
+  // Normalize to seat numbers for counting unique flowers/seasons
+  const uniqueFlowers = new Set(flowers.map(f => typeof f === 'string' ? flowerToSeatMap[f] : f));
+  const uniqueSeasons = new Set(seasons.map(s => typeof s === 'string' ? seasonToSeatMap[s] : s));
+  
   // All Flowers (all 4) or All Seasons (all 4) - 2 Fan each
-  if (flowers.length === 4) {
+  if (uniqueFlowers.size === 4) {
     patterns.push({ 
       name: 'All Flowers',
       nameZh: '一檯花',
@@ -375,7 +383,7 @@ const checkFlowersAndSeasons = (handData, gameContext) => {
       description: 'Collected all 4 flowers'
     });
   }
-  if (seasons.length === 4) {
+  if (uniqueSeasons.size === 4) {
     patterns.push({ 
       name: 'All Seasons',
       nameZh: '一檯花',
@@ -391,7 +399,15 @@ const checkFlowersAndSeasons = (handData, gameContext) => {
   // Seat 4 (North) = Flower 4 (Bamboo) + Season 4 (Winter)
   const seatNumber = gameContext.seatNumber || 1;
   
-  if (flowers.includes(seatNumber)) {
+  // Map string values to seat numbers for manual selection mode
+  const flowerToSeat = { 'plum': 1, 'orchid': 2, 'mum': 3, 'bamboo': 4 };
+  const seasonToSeat = { 'spring': 1, 'summer': 2, 'autumn': 3, 'winter': 4 };
+  
+  // Normalize flowers to seat numbers
+  const flowerSeatNumbers = flowers.map(f => typeof f === 'string' ? flowerToSeat[f] : f);
+  const seasonSeatNumbers = seasons.map(s => typeof s === 'string' ? seasonToSeat[s] : s);
+  
+  if (flowerSeatNumbers.includes(seatNumber)) {
     patterns.push({ 
       name: 'Seat Flower',
       nameZh: '正花',
@@ -400,7 +416,7 @@ const checkFlowersAndSeasons = (handData, gameContext) => {
     });
   }
   
-  if (seasons.includes(seatNumber)) {
+  if (seasonSeatNumbers.includes(seatNumber)) {
     patterns.push({ 
       name: 'Seat Season',
       nameZh: '正花',
