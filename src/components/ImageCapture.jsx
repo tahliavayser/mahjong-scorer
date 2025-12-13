@@ -122,7 +122,7 @@ const ImageCapture = ({ onImageCapture }) => {
           <img src={capturedImage} alt="Captured mahjong hand" />
           <div className="preview-controls">
             <button className="btn btn-secondary" onClick={resetCapture}>
-              🔄 Retake
+              Retake
             </button>
           </div>
         </div>
