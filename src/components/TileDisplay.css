@@ -52,6 +52,14 @@
   box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
 }
 
+.tile-card.clickable {
+  cursor: pointer;
+}
+
+.tile-card.clickable:hover {
+  background: #dc2626;
+}
+
 .tile-card.editing {
   border-color: #fff;
   z-index: 100;
@@ -64,14 +72,6 @@
   margin-bottom: 5px;
 }
 
-.tile-content.clickable {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.tile-content.clickable:hover {
-  transform: scale(1.1);
-}
 
 .tile-info {
   font-size: 12px;

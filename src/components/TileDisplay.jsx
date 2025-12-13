@@ -157,12 +157,13 @@ const TileDisplay = ({ tiles, onTilesUpdate, onRecalculate }) => {
           const isEditing = editingIndex === index;
           
           return (
-            <div key={index} className={`tile-card ${isEditing ? 'editing' : ''}`}>
-              <div 
-                className="tile-content clickable" 
-                onClick={() => handleTileClick(index)}
-                title="Click to edit"
-              >
+            <div 
+              key={index} 
+              className={`tile-card clickable ${isEditing ? 'editing' : ''}`}
+              onClick={() => handleTileClick(index)}
+              title="Click to edit"
+            >
+              <div className="tile-content">
                 {display.icon}
               </div>
               <div className="tile-info">
