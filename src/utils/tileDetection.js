@@ -413,9 +413,10 @@ const removeDuplicateDetections = (detections) => {
   
   const kept = [];
   const suppressed = new Set();
-  // Higher IoU threshold (0.5) = less aggressive suppression
+  // Higher IoU threshold (0.65) = even less aggressive suppression
   // Allows tiles that are stacked/overlapping in photo to both be detected
-  const iouThreshold = 0.5;
+  // Stacked tiles can have significant overlap in the image
+  const iouThreshold = 0.65;
   
   for (let i = 0; i < sorted.length; i++) {
     if (suppressed.has(i)) continue;
