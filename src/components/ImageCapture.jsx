@@ -69,6 +69,9 @@ const ImageCapture = ({ onImageCapture }) => {
   return (
     <div className="image-capture">
       <h2>Capture Your Mahjong Hand</h2>
+      <p className="capture-description">
+        Take a photo of your winning 14 tiles only. You'll provide additional context like flowers, seasons, and seat position after capture.
+      </p>
       
       {!capturedImage && !isCamera && (
         <div className="capture-options">

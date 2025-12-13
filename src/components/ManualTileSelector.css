@@ -7,8 +7,19 @@
 
 .manual-tile-selector h2 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: white;
+}
+
+.selector-description {
+  text-align: center;
+  color: #b0b0b0;
+  font-size: 14px;
+  margin-bottom: 25px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
 }
 
 .selected-tiles-section {

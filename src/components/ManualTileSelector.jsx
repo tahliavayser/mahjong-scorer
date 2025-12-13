@@ -106,7 +106,10 @@ const ManualTileSelector = ({ onTilesSelected, initialTiles = [] }) => {
 
   return (
     <div className="manual-tile-selector">
-      <h2>Manual Tile Selection</h2>
+      <h2>Select Your Mahjong Hand</h2>
+      <p className="selector-description">
+        Select all tiles in your winning hand grouped by meld. Include any flowers and seasons you collected. You'll provide additional context like seat position after selection.
+      </p>
       
       <div className="selected-tiles-section">
         <h3>Selected Tiles ({selectedTiles.length})</h3>
