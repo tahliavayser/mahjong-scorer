@@ -365,22 +365,82 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
 };
 
 /**
- * Remove duplicate detections using Non-Maximum Suppression
- * Keep top detections, allowing up to 4 of each tile type
+ * Calculate IoU (Intersection over Union) between two boxes
+ * Boxes are {x, y, w, h} where x,y is center
+ */
+const calculateIoU = (box1, box2) => {
+  // Convert center format to corner format
+  const x1_min = box1.x - box1.w / 2;
+  const x1_max = box1.x + box1.w / 2;
+  const y1_min = box1.y - box1.h / 2;
+  const y1_max = box1.y + box1.h / 2;
+  
+  const x2_min = box2.x - box2.w / 2;
+  const x2_max = box2.x + box2.w / 2;
+  const y2_min = box2.y - box2.h / 2;
+  const y2_max = box2.y + box2.h / 2;
+  
+  // Calculate intersection
+  const inter_x_min = Math.max(x1_min, x2_min);
+  const inter_x_max = Math.min(x1_max, x2_max);
+  const inter_y_min = Math.max(y1_min, y2_min);
+  const inter_y_max = Math.min(y1_max, y2_max);
+  
+  if (inter_x_max <= inter_x_min || inter_y_max <= inter_y_min) {
+    return 0;
+  }
+  
+  const inter_area = (inter_x_max - inter_x_min) * (inter_y_max - inter_y_min);
+  const area1 = box1.w * box1.h;
+  const area2 = box2.w * box2.h;
+  const union_area = area1 + area2 - inter_area;
+  
+  return inter_area / union_area;
+};
+
+/**
+ * Remove duplicate detections using proper NMS with IoU
+ * Keep top detections, suppressing overlapping boxes
  */
 const removeDuplicateDetections = (detections) => {
+  if (detections.length === 0) return [];
+  
   // Sort by confidence (highest first)
   const sorted = [...detections].sort((a, b) => b.confidence - a.confidence);
   
-  // Count how many of each tile type we've kept
+  const kept = [];
+  const suppressed = new Set();
+  const iouThreshold = 0.3; // Suppress if IoU > 0.3
+  
+  for (let i = 0; i < sorted.length; i++) {
+    if (suppressed.has(i)) continue;
+    
+    const current = sorted[i];
+    kept.push(current);
+    
+    // Suppress all lower-confidence detections that overlap with this one
+    for (let j = i + 1; j < sorted.length; j++) {
+      if (suppressed.has(j)) continue;
+      
+      if (current.bbox && sorted[j].bbox) {
+        const iou = calculateIoU(current.bbox, sorted[j].bbox);
+        if (iou > iouThreshold) {
+          suppressed.add(j);
+        }
+      }
+    }
+  }
+  
+  console.log(`NMS: ${detections.length} → ${kept.length} (suppressed ${suppressed.size} overlapping)`);
+  
+  // Now apply tile type limits (max 4 of each)
   const tileCounts = new Map();
   const result = [];
   
-  for (const det of sorted) {
+  for (const det of kept) {
     const key = `${det.type}-${det.value}`;
     const count = tileCounts.get(key) || 0;
     
-    // Allow up to 4 of each tile (mahjong has 4 copies of each regular tile)
     if (count < 4) {
       result.push({
         type: det.type,
@@ -392,7 +452,7 @@ const removeDuplicateDetections = (detections) => {
     }
   }
   
-  // Limit to reasonable hand size (max 22: 14 regular + 8 bonus)
+  // Limit to reasonable hand size
   const finalTiles = result.slice(0, 22).map(({ type, value, concealed }) => ({
     type, value, concealed
   }));
