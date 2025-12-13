@@ -175,6 +175,7 @@ function App() {
           <GameContextForm 
             onSubmit={handleContextSubmit}
             onSkip={handleContextSkip}
+            showFlowersSeasons={mode === 'image'}
           />
         ) : (
           <>

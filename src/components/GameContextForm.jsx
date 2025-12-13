@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './GameContextForm.css';
 
-const GameContextForm = ({ onSubmit, onSkip }) => {
+const GameContextForm = ({ onSubmit, onSkip, showFlowersSeasons = true }) => {
   const [context, setContext] = useState({
     winType: 'selfPick',
     seatWind: 'east',
@@ -232,67 +232,69 @@ const GameContextForm = ({ onSubmit, onSkip }) => {
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Bonus Tiles (Flowers & Seasons)</h3>
-            <p className="section-description">
-              Select any flowers or seasons you collected during the game.
-            </p>
-            
-            <div className="form-row">
-              <label className="checkbox-option">
-                <input
-                  type="checkbox"
-                  checked={context.noFlowersSeasons}
-                  onChange={toggleNoFlowersSeasons}
-                />
-                <span>No flowers or seasons</span>
-              </label>
-            </div>
-
-            <div className={`bonus-tiles-section ${context.noFlowersSeasons ? 'disabled' : ''}`}>
-              <div className="bonus-group">
-                <span className="bonus-label">Flowers:</span>
-                <div className="bonus-buttons">
-                  {flowerLabels.map(flower => (
-                    <button
-                      key={`flower-${flower.value}`}
-                      type="button"
-                      className={`bonus-btn ${context.flowers.includes(flower.value) ? 'selected' : ''}`}
-                      onClick={() => toggleFlower(flower.value)}
-                      disabled={context.noFlowersSeasons}
-                      title={flower.name}
-                    >
-                      {flower.icon} {flower.value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bonus-group">
-                <span className="bonus-label">Seasons:</span>
-                <div className="bonus-buttons">
-                  {seasonLabels.map(season => (
-                    <button
-                      key={`season-${season.value}`}
-                      type="button"
-                      className={`bonus-btn ${context.seasons.includes(season.value) ? 'selected' : ''}`}
-                      onClick={() => toggleSeason(season.value)}
-                      disabled={context.noFlowersSeasons}
-                      title={season.name}
-                    >
-                      {season.icon} {season.value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {(context.flowers.length > 0 || context.seasons.length > 0) && (
-              <p className="bonus-summary">
-                Selected: {context.flowers.length + context.seasons.length} bonus tile(s)
+          {showFlowersSeasons && (
+            <div className="form-section">
+              <h3>Bonus Tiles (Flowers & Seasons)</h3>
+              <p className="section-description">
+                Select any flowers or seasons you collected during the game.
               </p>
-            )}
-          </div>
+              
+              <div className="form-row">
+                <label className="checkbox-option">
+                  <input
+                    type="checkbox"
+                    checked={context.noFlowersSeasons}
+                    onChange={toggleNoFlowersSeasons}
+                  />
+                  <span>No flowers or seasons</span>
+                </label>
+              </div>
+
+              <div className={`bonus-tiles-section ${context.noFlowersSeasons ? 'disabled' : ''}`}>
+                <div className="bonus-group">
+                  <span className="bonus-label">Flowers:</span>
+                  <div className="bonus-buttons">
+                    {flowerLabels.map(flower => (
+                      <button
+                        key={`flower-${flower.value}`}
+                        type="button"
+                        className={`bonus-btn ${context.flowers.includes(flower.value) ? 'selected' : ''}`}
+                        onClick={() => toggleFlower(flower.value)}
+                        disabled={context.noFlowersSeasons}
+                        title={flower.name}
+                      >
+                        {flower.icon} {flower.value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bonus-group">
+                  <span className="bonus-label">Seasons:</span>
+                  <div className="bonus-buttons">
+                    {seasonLabels.map(season => (
+                      <button
+                        key={`season-${season.value}`}
+                        type="button"
+                        className={`bonus-btn ${context.seasons.includes(season.value) ? 'selected' : ''}`}
+                        onClick={() => toggleSeason(season.value)}
+                        disabled={context.noFlowersSeasons}
+                        title={season.name}
+                      >
+                        {season.icon} {season.value}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {(context.flowers.length > 0 || context.seasons.length > 0) && (
+                <p className="bonus-summary">
+                  Selected: {context.flowers.length + context.seasons.length} bonus tile(s)
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="form-actions">
             <button type="button" className="btn btn-skip" onClick={onSkip}>

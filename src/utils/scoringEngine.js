@@ -101,7 +101,11 @@ const checkSpecialHands = (handData, gameContext) => {
   }
   
   // Eight Flowers (all 4 flowers + all 4 seasons)
-  const totalBonusTiles = (gameContext.flowers?.length || 0) + (gameContext.seasons?.length || 0);
+  // Check both gameContext (image mode) and handData.bonusTiles (manual mode)
+  let totalBonusTiles = (gameContext.flowers?.length || 0) + (gameContext.seasons?.length || 0);
+  if (totalBonusTiles === 0 && bonusTiles) {
+    totalBonusTiles = bonusTiles.length;
+  }
   if (totalBonusTiles === 8) {
     return { 
       name: 'Eight Flowers',
@@ -335,14 +339,22 @@ const checkSpecialTileHands = (handData, gameContext) => {
 
 /**
  * Check flowers and seasons scoring
- * Uses gameContext.flowers and gameContext.seasons (arrays of values 1-4)
+ * Uses gameContext.flowers and gameContext.seasons (arrays of values 1-4) for image mode
+ * Or extracts from handData.bonusTiles for manual mode
  */
 const checkFlowersAndSeasons = (handData, gameContext) => {
   const patterns = [];
   
-  // Get flowers and seasons from gameContext (selected in the form)
-  const flowers = gameContext.flowers || [];
-  const seasons = gameContext.seasons || [];
+  // Get flowers and seasons - either from gameContext (image mode) or handData (manual mode)
+  let flowers = gameContext.flowers || [];
+  let seasons = gameContext.seasons || [];
+  
+  // If no flowers/seasons in context, check handData.bonusTiles (manual selection mode)
+  if (flowers.length === 0 && seasons.length === 0 && handData.bonusTiles && handData.bonusTiles.length > 0) {
+    flowers = handData.bonusTiles.filter(t => t.type === 'flowers').map(t => t.value);
+    seasons = handData.bonusTiles.filter(t => t.type === 'seasons').map(t => t.value);
+  }
+  
   const totalBonus = flowers.length + seasons.length;
   
   // No Flowers or Seasons - 1 Fan bonus
