@@ -433,11 +433,23 @@ const removeDuplicateDetections = (detections) => {
   
   console.log(`NMS: ${detections.length} → ${kept.length} (suppressed ${suppressed.size} overlapping)`);
   
+  // Sort by X position (left to right) to maintain visual order
+  const sortedByPosition = [...kept].sort((a, b) => {
+    if (a.bbox && b.bbox) {
+      return a.bbox.x - b.bbox.x;
+    }
+    return 0;
+  });
+  
+  console.log('Tiles sorted by X position:', sortedByPosition.map(d => 
+    `${d.className}@${d.bbox?.x?.toFixed(0)}`
+  ).join(', '));
+  
   // Now apply tile type limits (max 4 of each)
   const tileCounts = new Map();
   const result = [];
   
-  for (const det of kept) {
+  for (const det of sortedByPosition) {
     const key = `${det.type}-${det.value}`;
     const count = tileCounts.get(key) || 0;
     
@@ -452,7 +464,7 @@ const removeDuplicateDetections = (detections) => {
     }
   }
   
-  // Limit to reasonable hand size
+  // Limit to reasonable hand size (already in position order)
   const finalTiles = result.slice(0, 22).map(({ type, value, concealed }) => ({
     type, value, concealed
   }));
