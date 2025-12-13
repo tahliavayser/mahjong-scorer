@@ -100,14 +100,25 @@ const checkSpecialHands = (handData, gameContext) => {
     return { ...SCORING_PATTERNS.SPECIAL_HANDS.NINE_GATES };
   }
   
-  // Eight Flowers
-  if (bonusTiles.length === 8) {
-    return { ...SCORING_PATTERNS.SPECIAL_HANDS.EIGHT_FLOWERS };
+  // Eight Flowers (all 4 flowers + all 4 seasons)
+  const totalBonusTiles = (gameContext.flowers?.length || 0) + (gameContext.seasons?.length || 0);
+  if (totalBonusTiles === 8) {
+    return { 
+      name: 'Eight Flowers',
+      nameZh: '大花糊',
+      fan: 8,
+      description: 'Collected all 8 bonus tiles (4 flowers + 4 seasons)'
+    };
   }
   
   // Seven Flowers
-  if (bonusTiles.length === 7 && gameContext.winType === 'sevenFlowers') {
-    return { ...SCORING_PATTERNS.SPECIAL_HANDS.SEVEN_FLOWERS };
+  if (totalBonusTiles === 7) {
+    return { 
+      name: 'Seven Flowers',
+      nameZh: '花糊',
+      fan: 3,
+      description: 'Collected 7 bonus tiles'
+    };
   }
   
   return null;
@@ -324,38 +335,65 @@ const checkSpecialTileHands = (handData, gameContext) => {
 
 /**
  * Check flowers and seasons scoring
+ * Uses gameContext.flowers and gameContext.seasons (arrays of values 1-4)
  */
 const checkFlowersAndSeasons = (handData, gameContext) => {
   const patterns = [];
-  const { bonusTiles } = handData;
   
-  if (!bonusTiles || bonusTiles.length === 0) {
+  // Get flowers and seasons from gameContext (selected in the form)
+  const flowers = gameContext.flowers || [];
+  const seasons = gameContext.seasons || [];
+  const totalBonus = flowers.length + seasons.length;
+  
+  // No Flowers or Seasons - 1 Fan bonus
+  if (totalBonus === 0 || gameContext.noFlowersSeasons) {
     patterns.push({ ...SCORING_PATTERNS.FLOWERS_SEASONS.NO_FLOWERS_SEASONS });
     return patterns;
   }
   
-  const flowers = bonusTiles.filter(t => t.type === 'flowers');
-  const seasons = bonusTiles.filter(t => t.type === 'seasons');
+  // Eight Flowers - instant 8 Fan win (handled in special hands)
+  // Seven Flowers - instant 3 Fan win (handled in special hands)
   
-  // All Flowers or All Seasons
-  if (flowers.length === 4 || seasons.length === 4) {
-    patterns.push({ ...SCORING_PATTERNS.FLOWERS_SEASONS.ALL_FLOWERS_SEASONS });
+  // All Flowers (all 4) or All Seasons (all 4) - 2 Fan each
+  if (flowers.length === 4) {
+    patterns.push({ 
+      name: 'All Flowers',
+      nameZh: '一檯花',
+      fan: 2,
+      description: 'Collected all 4 flowers'
+    });
+  }
+  if (seasons.length === 4) {
+    patterns.push({ 
+      name: 'All Seasons',
+      nameZh: '一檯花',
+      fan: 2,
+      description: 'Collected all 4 seasons'
+    });
   }
   
-  // Seat Flower or Season
-  if (gameContext.seatNumber) {
-    const seatFlowerSeasonMap = {
-      1: ['plum', 'spring'],
-      2: ['orchid', 'summer'],
-      3: ['mum', 'autumn'],
-      4: ['bamboo', 'winter']
-    };
-    
-    const matchingBonuses = seatFlowerSeasonMap[gameContext.seatNumber] || [];
-    const seatMatches = bonusTiles.filter(t => matchingBonuses.includes(t.value));
-    
-    seatMatches.forEach(() => {
-      patterns.push({ ...SCORING_PATTERNS.FLOWERS_SEASONS.SEAT_FLOWER });
+  // Seat Flower or Season - 1 Fan for each matching your seat number
+  // Seat 1 (East) = Flower 1 (Plum) + Season 1 (Spring)
+  // Seat 2 (South) = Flower 2 (Orchid) + Season 2 (Summer)
+  // Seat 3 (West) = Flower 3 (Chrysanthemum) + Season 3 (Autumn)
+  // Seat 4 (North) = Flower 4 (Bamboo) + Season 4 (Winter)
+  const seatNumber = gameContext.seatNumber || 1;
+  
+  if (flowers.includes(seatNumber)) {
+    patterns.push({ 
+      name: 'Seat Flower',
+      nameZh: '正花',
+      fan: 1,
+      description: `Flower ${seatNumber} matches your seat`
+    });
+  }
+  
+  if (seasons.includes(seatNumber)) {
+    patterns.push({ 
+      name: 'Seat Season',
+      nameZh: '正花',
+      fan: 1,
+      description: `Season ${seatNumber} matches your seat`
     });
   }
   
