@@ -122,15 +122,40 @@ export const initializeTileDetection = async () => {
 };
 
 /**
- * Preprocess image for YOLOv8 (640x640)
+ * Preprocess image for YOLOv8 (640x640) with letterboxing
+ * Maintains aspect ratio by padding instead of stretching
  */
 const preprocessImage = (imageElement) => {
   return tf.tidy(() => {
     // Convert image to tensor
     let tensor = tf.browser.fromPixels(imageElement);
     
-    // Resize to 640x640 (YOLOv8 input size)
-    tensor = tf.image.resizeBilinear(tensor, [640, 640]);
+    const [origH, origW] = [tensor.shape[0], tensor.shape[1]];
+    const targetSize = 640;
+    
+    // Calculate scale to fit in 640x640 while maintaining aspect ratio
+    const scale = Math.min(targetSize / origW, targetSize / origH);
+    const newW = Math.round(origW * scale);
+    const newH = Math.round(origH * scale);
+    
+    console.log(`Preprocessing: ${origW}x${origH} → ${newW}x${newH} (scale: ${scale.toFixed(3)})`);
+    
+    // Resize maintaining aspect ratio
+    tensor = tf.image.resizeBilinear(tensor, [newH, newW]);
+    
+    // Calculate padding (center the image)
+    const padTop = Math.floor((targetSize - newH) / 2);
+    const padBottom = targetSize - newH - padTop;
+    const padLeft = Math.floor((targetSize - newW) / 2);
+    const padRight = targetSize - newW - padLeft;
+    
+    // Pad with gray (114/255 is YOLO's default padding color)
+    const padValue = 114;
+    tensor = tensor.pad([
+      [padTop, padBottom],
+      [padLeft, padRight],
+      [0, 0]
+    ], padValue);
     
     // Normalize to [0, 1]
     tensor = tensor.div(255.0);
@@ -182,25 +207,25 @@ const postprocessDetections = (output, confidenceThreshold = 0.6) => {
   let globalMaxClass = 0;
   let globalMaxAnchor = 0;
   
-  // Sigmoid function to convert logits to probabilities
-  const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+  // NOTE: YOLOv8 TF.js export already applies sigmoid to class scores!
+  // So rawData values 4-45 are already probabilities (0-1), not logits
   
   // Parse each anchor
   for (let a = 0; a < numAnchors; a++) {
     // Get bbox (indices 0-3, each spanning all anchors)
+    // These are already decoded to pixel coordinates (0-640)
     const x = rawData[0 * numAnchors + a];
     const y = rawData[1 * numAnchors + a];
     const w = rawData[2 * numAnchors + a];
     const h = rawData[3 * numAnchors + a];
     
     // Get class scores (indices 4-45, each spanning all anchors)
+    // These are ALREADY sigmoid-activated probabilities!
     let maxConfidence = 0;
     let maxClassId = 0;
     
     for (let c = 0; c < numClasses; c++) {
-      const rawScore = rawData[(4 + c) * numAnchors + a];
-      // Apply sigmoid to convert logit to probability
-      const confidence = sigmoid(rawScore);
+      const confidence = rawData[(4 + c) * numAnchors + a];
       
       if (confidence > maxConfidence) {
         maxConfidence = confidence;
@@ -234,34 +259,33 @@ const postprocessDetections = (output, confidenceThreshold = 0.6) => {
   // Debug output
   console.log(`🔍 DEBUG: Highest confidence found: ${globalMaxConf.toFixed(4)} for class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}) at anchor ${globalMaxAnchor}`);
   
-  // Show raw logits and sigmoid values for best anchor
-  const bestLogits = [];
+  // Show probabilities for best anchor (already sigmoid-activated by model)
+  const bestProbs = [];
   for (let c = 0; c < Math.min(10, numClasses); c++) {
     const idx = (4 + c) * numAnchors + globalMaxAnchor;
-    const logit = rawData[idx];
-    bestLogits.push(`c${c}:${logit.toFixed(2)}→${sigmoid(logit).toFixed(3)}`);
+    const prob = rawData[idx];
+    bestProbs.push(`${CLASS_NAMES[c]}:${prob.toFixed(3)}`);
   }
-  console.log(`Best anchor ${globalMaxAnchor} logits→probs:`, bestLogits.join(', '));
+  console.log(`Best anchor ${globalMaxAnchor} class probs:`, bestProbs.join(', '));
   
-  // Show the winning class specifically
-  const winningLogitIdx = (4 + globalMaxClass) * numAnchors + globalMaxAnchor;
-  console.log(`Winning class ${globalMaxClass} (${CLASS_NAMES[globalMaxClass]}): logit=${rawData[winningLogitIdx].toFixed(4)}, prob=${globalMaxConf.toFixed(4)}`);
+  // Show bbox for best anchor
+  console.log(`Best anchor bbox: x=${rawData[0 * numAnchors + globalMaxAnchor].toFixed(1)}, y=${rawData[1 * numAnchors + globalMaxAnchor].toFixed(1)}, w=${rawData[2 * numAnchors + globalMaxAnchor].toFixed(1)}, h=${rawData[3 * numAnchors + globalMaxAnchor].toFixed(1)}`);
   
-  // Also check if there are high logits anywhere
-  let maxLogit = -Infinity;
-  let maxLogitClass = 0;
-  let maxLogitAnchor = 0;
+  // Check max probability across ALL anchors
+  let maxProb = 0;
+  let maxProbClass = 0;
+  let maxProbAnchor = 0;
   for (let c = 0; c < numClasses; c++) {
-    for (let a = 0; a < Math.min(1000, numAnchors); a++) { // Sample first 1000
+    for (let a = 0; a < numAnchors; a++) {
       const idx = (4 + c) * numAnchors + a;
-      if (rawData[idx] > maxLogit) {
-        maxLogit = rawData[idx];
-        maxLogitClass = c;
-        maxLogitAnchor = a;
+      if (rawData[idx] > maxProb) {
+        maxProb = rawData[idx];
+        maxProbClass = c;
+        maxProbAnchor = a;
       }
     }
   }
-  console.log(`Max raw logit in first 1000 anchors: ${maxLogit.toFixed(4)} for class ${maxLogitClass} at anchor ${maxLogitAnchor}`);
+  console.log(`🔥 Max probability across ALL anchors: ${maxProb.toFixed(4)} for class ${maxProbClass} (${CLASS_NAMES[maxProbClass]}) at anchor ${maxProbAnchor}`);
   
   console.log(`Found ${detections.length} detections above threshold ${confidenceThreshold}`);
   
@@ -294,12 +318,25 @@ export const detectTilesFromImage = async (imageBlob, imageElement) => {
     console.log('Running model inference...');
     const output = await model.predict(inputTensor);
     console.log('Model output:', output);
+    console.log('Output is Tensor?', output instanceof tf.Tensor);
+    
+    // Check model output signature
+    if (model.outputs) {
+      console.log('Model output names:', model.outputs.map(o => o.name));
+    }
+    
+    // If output is a single tensor, log its shape
+    if (output instanceof tf.Tensor) {
+      console.log('Direct tensor shape:', output.shape);
+    } else if (Array.isArray(output)) {
+      console.log('Array output, shapes:', output.map(t => t.shape));
+    }
     
     // Cleanup input tensor
     inputTensor.dispose();
     
     // Post-process to get tile detections
-    const detections = postprocessDetections(output, 0.25); // Lower threshold
+    const detections = postprocessDetections(output, 0.5); // Moderate threshold
     
     // Cleanup output
     if (Array.isArray(output)) {
